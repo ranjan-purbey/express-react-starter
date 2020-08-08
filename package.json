@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "cd server && yarn start",
+    "dev": "concurrently -n \"server,client\" -c \"magenta,cyan\" \"cd server && yarn dev\" \"cd client && yarn start\"",
     "build": "yarn build:client && yarn build:server",
     "build:client": "cd client && yarn build",
     "build:server": "cd server && yarn build"
@@ -12,5 +13,8 @@
   "workspaces": [
     "server/",
     "client/"
-  ]
+  ],
+  "devDependencies": {
+    "concurrently": "^5.3.0"
+  }
 }

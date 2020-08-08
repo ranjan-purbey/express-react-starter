@@ -1,0 +1,31 @@
+version: "3.0"
+
+volumes:
+  db_storage:
+services:
+  db:
+    image: postgres:12
+    restart: on-failure
+    volumes:
+      - db_storage:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - ./.env
+  app:
+    image: node:13-slim
+    user: 1000:1000
+    volumes:
+      - .:/application:cached
+    ports:
+      - 3000:3000
+      - 3001:3001
+      - 5858:5858
+    working_dir: /application
+    command: sh -c "yarn && yarn dev"
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+    stdin_open: true
+    tty: true
