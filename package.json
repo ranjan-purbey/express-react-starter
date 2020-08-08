@@ -1,0 +1,16 @@
+{
+  "name": "express-react-starter",
+  "version": "1.0.0",
+  "private": "true",
+  "license": "MIT",
+  "scripts": {
+    "start": "cd server && yarn start",
+    "build": "yarn build:client && yarn build:server",
+    "build:client": "cd client && yarn build",
+    "build:server": "cd server && yarn build"
+  },
+  "workspaces": [
+    "server/",
+    "client/"
+  ]
+}
