@@ -4,7 +4,7 @@
   "private": "true",
   "license": "MIT",
   "scripts": {
-    "start": "cd server && yarn start",
+    "start": "cd server && yarn typeorm migration:run && yarn start",
     "dev": "concurrently -n \"server,client\" -c \"magenta,cyan\" \"cd server && yarn dev\" \"cd client && yarn start\"",
     "build": "yarn build:client && yarn build:server",
     "build:client": "cd client && yarn build",
