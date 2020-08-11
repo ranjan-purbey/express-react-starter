@@ -1,23 +1,51 @@
 import express from "express";
 import path from "path";
-import { ensureConnection } from "./database";
-import { Post } from "./entities/Post";
+import { ApolloServer } from "apollo-server-express";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { PostsResolver } from "./resolvers/postsResolver";
+import { buildSchema } from "type-graphql";
+import { GraphqlContext } from "./types";
+import { buildDataloaders } from "./buildDataloaders";
+import { CommentsResolver } from "./resolvers/commentsResolver";
 
-const main = () => {
+const main = async () => {
   const app = express();
-  const clientPath = process.env.REACT_PATH || path.resolve("../client/build");
 
-  app.use(express.static(clientPath));
-  app.get("/api", async (req, res) => {
-    const db = await ensureConnection();
-    const posts = await db.manager.find(Post, { relations: ["comments"] });
-    res.send({ posts });
+  // add apollo-server (graphql) middleware
+  const schema = await buildSchema({
+    resolvers: [PostsResolver, CommentsResolver],
   });
-  app.get("/*", (req, res) =>
-    res.sendFile(path.join(clientPath, "index.html"))
-  );
-  const port = process.env.PORT || 3001;
-  app.listen(port, () => console.log(`Listening on port ${port}`));
+  const server = new ApolloServer({
+    schema,
+    async context({ req, res }): Promise<GraphqlContext> {
+      return {
+        getDataLoader: await buildDataloaders(),
+      };
+    },
+  });
+
+  server.applyMiddleware({ app, path: "/graphql" });
+
+  // redirect all other GET requests to react app
+  const clientPath = process.env.REACT_PATH || path.resolve("../client/build");
+  if (process.env.NODE_ENV === "production") {
+    app.use(express.static(clientPath));
+    app.get("*", (req, res) =>
+      res.sendFile(path.join(clientPath, "index.html"))
+    );
+  } else
+    app.use(
+      createProxyMiddleware({
+        target: "http://localhost:3001",
+        changeOrigin: true,
+        ws: true,
+      })
+    );
+  app.all("*", (req, res) => res.status(404).send({ message: "NOT_FOUND" }));
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Listeing on port ${port}`);
+  });
 };
 
 main();

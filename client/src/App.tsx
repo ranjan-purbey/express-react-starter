@@ -9,6 +9,7 @@ function App() {
         <Route exact path="/">
           <HomePage />
         </Route>
+        <Route path="/settings">Settings</Route>
         <Route path="*">404</Route>
       </Switch>
     </BrowserRouter>
