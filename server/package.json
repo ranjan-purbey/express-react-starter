@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "node dist/main.js",
+    "start": "yarn db:migrate && node dist/main.js",
     "dev": "nodemon src/main.ts",
     "build": "tsc",
-    "typeorm": "ts-node ./node_modules/.bin/typeorm"
+    "db": "ts-node ./node_modules/.bin/typeorm",
+    "db:migrate": "[ \"$NODE_ENV\" = production ] && npx typeorm migration:run || yarn db migration:run"
   },
   "dependencies": {
     "dotenv": "^8.2.0",

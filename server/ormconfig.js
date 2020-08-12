@@ -14,8 +14,15 @@ module.exports = {
   uuidExtension: "pgcrypto",
   synchronize: false,
   logging: true,
-  entities: ["./src/entities/**/*.ts"],
-  migrations: ["./src/migrations/**/*.ts"],
+  ...(process.env.NODE_ENV === "production"
+    ? {
+        entities: ["./dist/entities/**/*.js"],
+        migrations: ["./dist/migrations/**/*.js"],
+      }
+    : {
+        entities: ["./src/entities/**/*.ts"],
+        migrations: ["./src/migrations/**/*.ts"],
+      }),
   cli: {
     entitiesDir: "./src/entities",
     migrationsDir: "./src/migrations",
